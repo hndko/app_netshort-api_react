@@ -20,7 +20,8 @@ interface UseDramaDataReturn extends UseDramaDataState {
 }
 
 /**
- * Custom hook for fetching and transforming drama data from API
+ * Custom hook for fetching and transforming drama data from theaters API
+ * Used for Home page
  */
 export function useDramaData(): UseDramaDataReturn {
   const [state, setState] = useState<UseDramaDataState>({
@@ -72,7 +73,6 @@ export function useDramaData(): UseDramaDataReturn {
  * Transform API theaters response to SectionData array for components
  */
 function transformTheatersToSections(theaters: TheatersResponse): SectionData[] {
-  // Map content remarks to layouts
   const layoutMap: Record<string, 'scroll' | 'grid'> = {
     'premium_drama': 'scroll',
     'top_short_dramas': 'scroll',
@@ -89,26 +89,21 @@ function transformTheatersToSections(theaters: TheatersResponse): SectionData[] 
 
 /**
  * Extract hero data from theaters response
- * Uses the drama with highest heat score from first section
  */
 function extractHeroData(theaters: TheatersResponse): HeroData | null {
   if (!theaters.length || !theaters[0].contentInfos.length) {
     return null;
   }
 
-  // Find the drama with highest heat score across first section
   const firstSection = theaters[0];
   const topDrama = firstSection.contentInfos.reduce((max, item) =>
     item.heatScore > max.heatScore ? item : max
   );
 
-  // Smart title/subtitle splitting
-  // Try to split at common Indonesian pattern words
   const name = topDrama.shortPlayName;
   let title = name;
   let subtitle = '';
 
-  // Check for common split patterns
   const splitPatterns = [' Untuk ', ' Dan ', ' atau ', ' di '];
   for (const pattern of splitPatterns) {
     if (name.includes(pattern)) {
@@ -119,14 +114,12 @@ function extractHeroData(theaters: TheatersResponse): HeroData | null {
     }
   }
 
-  // If no pattern found, split by word count
   if (!subtitle && name.split(' ').length > 3) {
     const words = name.split(' ');
     title = words.slice(0, Math.ceil(words.length / 2)).join(' ');
     subtitle = words.slice(Math.ceil(words.length / 2)).join(' ');
   }
 
-  // Generate an engaging description from labels
   const labels = topDrama.labelArray;
   let description = '';
   if (labels.length > 0) {
@@ -136,9 +129,9 @@ function extractHeroData(theaters: TheatersResponse): HeroData | null {
   }
 
   return {
-    title: title,
-    subtitle: subtitle,
-    description: description,
+    title,
+    subtitle,
+    description,
     bgImage: topDrama.highImage || topDrama.shortPlayCover || topDrama.groupShortPlayCover,
     badge: topDrama.scriptName === 'Baru' ? 'NEW' : 'HOT',
   };

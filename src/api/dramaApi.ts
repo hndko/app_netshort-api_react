@@ -1,5 +1,5 @@
 // API Service for fetching drama data from NetShort
-import { TheatersResponse, TheaterSection, DramaItem } from '@/src/types';
+import { TheatersResponse, TheaterSection, DramaItem, ForYouResponse } from '@/src/types';
 
 // Base URL for NetShort API
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://netshort.sansekai.my.id/api/netshort';
@@ -30,6 +30,13 @@ export const dramaApi = {
    * Returns array of sections like "Drama Viral", "Drama Premium", "Dubbing", etc.
    */
   getTheaters: (): Promise<TheatersResponse> => fetchApi('/theaters'),
+
+  /**
+   * Get drama recommendations for user (For You page)
+   * @param page - Page number (default: 1)
+   */
+  getForYou: (page: number = 1): Promise<ForYouResponse> =>
+    fetchApi(`/foryou?page=${page}`),
 
   /**
    * Get a specific section by content remark
@@ -84,3 +91,4 @@ export const dramaApi = {
 };
 
 export default dramaApi;
+

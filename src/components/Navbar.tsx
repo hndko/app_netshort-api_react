@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import Icon from './Icon';
+
+interface NavItem {
+  label: string;
+  path: string;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { label: 'Beranda', path: '/' },
+  { label: 'Serial Drama', path: '/serial-drama' },
+];
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,24 +53,24 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
-            <a href="#" className="flex-shrink-0 flex items-center gap-2">
+            <Link to="/" className="flex-shrink-0 flex items-center gap-2">
               <Icon name="play_circle_filled" className="text-primary" size="3xl" />
               <span className="font-bold text-xl tracking-tight text-gray-900 dark:text-white">NetShort</span>
-            </a>
+            </Link>
             <div className="hidden md:block">
               <div className="flex items-baseline space-x-6">
-                {['Beranda', 'Serial Drama', 'Unduh', 'Blog'].map((item, index) => (
-                  <a
-                    key={item}
-                    href="#"
+                {NAV_ITEMS.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
                     className={`${
-                      index === 0
+                      location.pathname === item.path
                         ? 'text-primary'
                         : 'text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white'
                     } px-3 py-2 rounded-md text-sm font-medium transition-colors`}
                   >
-                    {item}
-                  </a>
+                    {item.label}
+                  </Link>
                 ))}
               </div>
             </div>

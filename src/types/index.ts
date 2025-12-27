@@ -44,6 +44,23 @@ export interface TheaterSection {
   contentRemark: string;
 }
 
+// ForYou API Response (with pagination)
+export interface ForYouResponse {
+  contentType: number;
+  groupId: string;
+  contentName: string;
+  contentModel: number;
+  contentInfos: DramaItem[];
+  maxOffset: number;
+  heatShowSwitch: number;
+  freeEndTime: number;
+  freeConfigId: string | null;
+  hiddenName: number;
+  highShowCount: number;
+  contentRemark: string;
+  completed: boolean;
+}
+
 // API Response - array of theater sections
 export type TheatersResponse = TheaterSection[];
 
