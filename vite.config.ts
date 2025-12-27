@@ -13,8 +13,16 @@ export default defineConfig(({ mode }) => {
           '/api/netshort': {
             target: 'https://netshort.sansekai.my.id',
             changeOrigin: true,
-            secure: true,
-            rewrite: (path) => path // keep path as-is
+            secure: false, // Ignore SSL certificate issues
+            rewrite: (path) => path, // keep path as-is
+            configure: (proxy) => {
+              proxy.on('error', (err) => {
+                console.log('Proxy error:', err.message);
+              });
+              proxy.on('proxyReq', (proxyReq, req) => {
+                console.log('Proxying:', req.url);
+              });
+            }
           }
         }
       },
