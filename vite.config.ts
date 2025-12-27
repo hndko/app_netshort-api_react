@@ -8,6 +8,14 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        // Proxy untuk mengatasi CORS
+        proxy: {
+          '/api': {
+            target: 'https://netshort.sansekai.my.id',
+            changeOrigin: true,
+            secure: true,
+          }
+        }
       },
       plugins: [react()],
       define: {
