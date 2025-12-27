@@ -99,6 +99,56 @@ export interface SearchResponse {
   abtestHitNewBO: string | null;
 }
 
+// Episode Item
+export interface Episode {
+  shortPlayId: string;
+  shortPlayLibraryId: string;
+  episodeId: string;
+  episodeNo: number;
+  episodeType: number;
+  episodeCover: string;
+  likeNums: string;
+  chaseNums: string;
+  isLike: boolean;
+  isChase: boolean;
+  playVoucher: string;
+  playClarity: string;
+  sdkVid: string;
+  isLock: boolean;
+  isVip: boolean;
+  isAd: boolean;
+  episodeGoldCoinPrice: number;
+  subtitleList: string[];
+  pressType: number;
+}
+
+// Drama Detail Response (All Episodes)
+export interface DramaDetailResponse {
+  shortPlayId: string;
+  shortPlayLibraryId: string;
+  shortPlayName: string;
+  shortPlayCover: string;
+  shortPlayLabels: string[];
+  isNewLabel: boolean;
+  shotIntroduce: string;
+  payPoint: number;
+  totalEpisode: number;
+  goldCoinPrice: number;
+  isFinish: number;
+  isChase: boolean;
+  defaultLikeNums: number;
+  defaultChaseNums: number;
+  onlineState: number;
+  shortPlayEpisodeInfos: Episode[];
+  recordHistory: number;
+  language: string;
+  shortPlayType: number;
+  script: number;
+  scriptName: string;
+  scriptType: number;
+  videoPriceTemplateId: string;
+}
+
 // API Response - array of theater sections
 export type TheatersResponse = TheaterSection[];
 

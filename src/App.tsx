@@ -5,6 +5,7 @@ import Footer from '@/src/components/Footer';
 import HomePage from '@/src/pages/HomePage';
 import SerialDramaPage from '@/src/pages/SerialDramaPage';
 import SearchPage from '@/src/pages/SearchPage';
+import DramaDetailPage from '@/src/pages/DramaDetailPage';
 
 const App: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/serial-drama" element={<SerialDramaPage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/drama/:id" element={<DramaDetailPage />} />
         </Routes>
 
         <Footer />

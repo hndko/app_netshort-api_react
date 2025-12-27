@@ -1,5 +1,5 @@
 // API Service for fetching drama data from NetShort
-import { TheatersResponse, TheaterSection, DramaItem, ForYouResponse, SearchResponse } from '@/src/types';
+import { TheatersResponse, TheaterSection, DramaItem, ForYouResponse, SearchResponse, DramaDetailResponse } from '@/src/types';
 
 // Base URL for NetShort API
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://netshort.sansekai.my.id/api/netshort';
@@ -44,6 +44,13 @@ export const dramaApi = {
    */
   search: (query: string, page: number = 1): Promise<SearchResponse> =>
     fetchApi(`/search?query=${encodeURIComponent(query)}&page=${page}`),
+
+  /**
+   * Get all episodes for a drama
+   * @param shortPlayId - Drama ID
+   */
+  getAllEpisodes: (shortPlayId: string): Promise<DramaDetailResponse> =>
+    fetchApi(`/allepisode?shortPlayId=${shortPlayId}`),
 
   /**
    * Get a specific section by content remark

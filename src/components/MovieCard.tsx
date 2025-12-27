@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Movie } from '@/src/types';
 import Icon from './Icon';
 
@@ -16,7 +17,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, className = '' }) => {
   };
 
   return (
-    <div className={`group/card cursor-pointer ${className}`}>
+    <Link to={`/drama/${movie.id}`} className={`group/card cursor-pointer block ${className}`}>
       <div className="relative aspect-poster rounded-lg overflow-hidden shadow-lg mb-3 bg-gray-200 dark:bg-gray-800">
         <img
           src={movie.imageUrl}
@@ -46,7 +47,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, className = '' }) => {
       <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
         {movie.tags}
       </p>
-    </div>
+    </Link>
   );
 };
 
