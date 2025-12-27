@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import MovieCard from '@/src/components/MovieCard';
 import { dramaApi } from '@/src/api/dramaApi';
-import { Movie, transformSearchResultToMovie } from '@/src/types';
+import { Movie, transformSearchResultToMovie, SearchResultItem } from '@/src/types';
 
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -10,34 +10,66 @@ const SearchPage: React.FC = () => {
 
   const [results, setResults] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [allSearchResults, setAllSearchResults] = useState<SearchResultItem[]>([]);
 
-  useEffect(() => {
+  const ITEMS_PER_PAGE = 20;
+
+  // Fetch initial search results
+  const fetchResults = useCallback(async () => {
     if (!query.trim()) {
       setResults([]);
       setTotal(0);
+      setAllSearchResults([]);
       return;
     }
 
-    const fetchResults = async () => {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
+    setPage(1);
 
-      try {
-        const response = await dramaApi.search(query);
-        const movies = response.searchCodeSearchResult.map(transformSearchResultToMovie);
-        setResults(movies);
-        setTotal(response.total);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Gagal mencari drama'));
-      } finally {
-        setLoading(false);
-      }
-    };
+    try {
+      const response = await dramaApi.search(query);
+      const allItems = response.searchCodeSearchResult;
+      setAllSearchResults(allItems);
+      setTotal(response.total);
 
-    fetchResults();
+      // Show first page
+      const firstPageItems = allItems.slice(0, ITEMS_PER_PAGE);
+      const movies = firstPageItems.map(transformSearchResultToMovie);
+      setResults(movies);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Gagal mencari drama'));
+    } finally {
+      setLoading(false);
+    }
   }, [query]);
+
+  useEffect(() => {
+    fetchResults();
+  }, [fetchResults]);
+
+  // Load more results (from already fetched data)
+  const loadMore = () => {
+    setLoadingMore(true);
+
+    const nextPage = page + 1;
+    const startIndex = 0;
+    const endIndex = nextPage * ITEMS_PER_PAGE;
+
+    const moreItems = allSearchResults.slice(startIndex, endIndex);
+    const movies = moreItems.map(transformSearchResultToMovie);
+
+    setResults(movies);
+    setPage(nextPage);
+    setLoadingMore(false);
+  };
+
+  const hasMore = results.length < allSearchResults.length;
+  const showingCount = results.length;
 
   return (
     <main className="relative z-10 pt-20 pb-20 bg-background-light dark:bg-background-dark transition-colors duration-300 min-h-screen">
@@ -49,7 +81,7 @@ const SearchPage: React.FC = () => {
           </h1>
           {query && (
             <p className="text-gray-600 dark:text-gray-400">
-              {loading ? 'Mencari...' : `Ditemukan ${total} hasil untuk "${query}"`}
+              {loading ? 'Mencari...' : `Menampilkan ${showingCount} dari ${total} hasil untuk "${query}"`}
             </p>
           )}
         </div>
@@ -96,6 +128,33 @@ const SearchPage: React.FC = () => {
             {results.map((movie) => (
               <MovieCard key={movie.id} movie={movie} />
             ))}
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {!loading && hasMore && (
+          <div className="flex justify-center mt-12">
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="bg-primary hover:bg-rose-600 disabled:bg-gray-400 text-white px-8 py-3 rounded-full font-semibold flex items-center gap-2 transition-colors shadow-lg shadow-primary/30"
+            >
+              {loadingMore ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                  Memuat...
+                </>
+              ) : (
+                `Muat Lebih Banyak (${allSearchResults.length - results.length} tersisa)`
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* End of Results */}
+        {!loading && !hasMore && results.length > 0 && (
+          <div className="text-center mt-12 text-gray-500 dark:text-gray-400">
+            Sudah menampilkan semua hasil pencarian
           </div>
         )}
       </div>
