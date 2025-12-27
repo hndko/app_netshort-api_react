@@ -10,10 +10,11 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
         // Proxy untuk mengatasi CORS
         proxy: {
-          '/api': {
+          '/api/netshort': {
             target: 'https://netshort.sansekai.my.id',
             changeOrigin: true,
             secure: true,
+            rewrite: (path) => path // keep path as-is
           }
         }
       },
