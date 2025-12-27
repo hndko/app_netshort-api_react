@@ -4,7 +4,6 @@ import {
   TheatersResponse,
   SectionData,
   HeroData,
-  DramaItem,
   transformDramaToMovie,
   transformSectionToSectionData
 } from '@/src/types';
@@ -103,15 +102,43 @@ function extractHeroData(theaters: TheatersResponse): HeroData | null {
     item.heatScore > max.heatScore ? item : max
   );
 
-  // Extract title parts (some titles have format "Title Subtitle")
-  const titleParts = topDrama.shortPlayName.split(' ').slice(0, 3).join(' ');
-  const subtitleParts = topDrama.shortPlayName.split(' ').slice(3).join(' ') ||
-    topDrama.labelArray[0] || '';
+  // Smart title/subtitle splitting
+  // Try to split at common Indonesian pattern words
+  const name = topDrama.shortPlayName;
+  let title = name;
+  let subtitle = '';
+
+  // Check for common split patterns
+  const splitPatterns = [' Untuk ', ' Dan ', ' atau ', ' di '];
+  for (const pattern of splitPatterns) {
+    if (name.includes(pattern)) {
+      const parts = name.split(pattern);
+      title = parts[0];
+      subtitle = pattern.trim() + ' ' + parts.slice(1).join(pattern);
+      break;
+    }
+  }
+
+  // If no pattern found, split by word count
+  if (!subtitle && name.split(' ').length > 3) {
+    const words = name.split(' ');
+    title = words.slice(0, Math.ceil(words.length / 2)).join(' ');
+    subtitle = words.slice(Math.ceil(words.length / 2)).join(' ');
+  }
+
+  // Generate an engaging description from labels
+  const labels = topDrama.labelArray;
+  let description = '';
+  if (labels.length > 0) {
+    description = `Sebuah kisah ${labels[0]?.toLowerCase() || 'epik'} yang penuh dengan ${labels[1]?.toLowerCase() || 'emosi'} dan ${labels[2]?.toLowerCase() || 'kejutan'}. Tonton sekarang dan rasakan pengalaman yang tak terlupakan!`;
+  } else {
+    description = `Drama populer dengan ${topDrama.heatScoreShow || 'ribuan'} penonton. Tonton sekarang dan temukan kisah yang memikat hati!`;
+  }
 
   return {
-    title: titleParts,
-    subtitle: subtitleParts,
-    description: `${topDrama.labelArray.join(' · ')} - ${topDrama.heatScoreShow || ''} penonton`,
+    title: title,
+    subtitle: subtitle,
+    description: description,
     bgImage: topDrama.highImage || topDrama.shortPlayCover || topDrama.groupShortPlayCover,
     badge: topDrama.scriptName === 'Baru' ? 'NEW' : 'HOT',
   };

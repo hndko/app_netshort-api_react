@@ -74,11 +74,7 @@ const Navbar: React.FC = () => {
                 placeholder="Pencarian"
               />
             </div>
-            <button className="flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-primary text-sm font-medium">
-              <Icon name="language" size="lg" />
-              <span className="hidden sm:inline">Bahasa</span>
-              <Icon name="expand_more" size="sm" />
-            </button>
+
             <button
               onClick={toggleTheme}
               className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"

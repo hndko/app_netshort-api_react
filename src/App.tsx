@@ -4,21 +4,16 @@ import Hero from '@/src/components/Hero';
 import Section from '@/src/components/Section';
 import Footer from '@/src/components/Footer';
 import { useDramaData } from '@/src/hooks/useDramaData';
-import { SECTIONS, HERO_DATA } from '@/src/constants';
 
 const App: React.FC = () => {
   const { sections, heroData, loading, error } = useDramaData();
-
-  // Use API data if available, fallback to static data
-  const displaySections = sections.length > 0 ? sections : SECTIONS;
-  const displayHeroData = heroData || HERO_DATA;
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      {/* Hero Section with API data */}
-      <Hero heroData={displayHeroData} />
+      {/* Hero Section - only show if heroData exists */}
+      {heroData && <Hero heroData={heroData} />}
 
       <main className="relative z-10 pb-20 space-y-12 bg-background-light dark:bg-background-dark transition-colors duration-300">
         {/* Loading State */}
@@ -39,8 +34,8 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Drama Sections */}
-        {!loading && displaySections.map((section, index) => (
+        {/* Drama Sections from API */}
+        {!loading && sections.map((section, index) => (
           <Section
             key={`${section.title}-${index}`}
             {...section}
