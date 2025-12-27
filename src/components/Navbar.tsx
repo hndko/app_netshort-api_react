@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon from './Icon';
 
 interface NavItem {
@@ -15,7 +15,9 @@ const NAV_ITEMS: NavItem[] = [
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,6 +41,19 @@ const Navbar: React.FC = () => {
     } else {
       document.documentElement.classList.add('dark');
       setIsDarkMode(true);
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch(e);
     }
   };
 
@@ -76,16 +91,20 @@ const Navbar: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="relative hidden sm:block group">
+            {/* Search Form */}
+            <form onSubmit={handleSearch} className="relative hidden sm:block group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Icon name="search" className="text-gray-400" />
               </div>
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm rounded-full block w-full pl-10 pr-3 py-2 border-transparent focus:border-primary focus:ring-0 placeholder-gray-500 transition-all w-48 focus:w-64"
-                placeholder="Pencarian"
+                placeholder="Cari drama..."
               />
-            </div>
+            </form>
 
             <button
               onClick={toggleTheme}

@@ -61,6 +61,44 @@ export interface ForYouResponse {
   completed: boolean;
 }
 
+// Search Result Item
+export interface SearchResultItem {
+  id: string | null;
+  shortPlayId: string;
+  shortPlayLibraryId: string;
+  popularityValue: number | null;
+  shortPlayName: string;
+  shortPlayCover: string;
+  shotIntroduce: string | null;
+  type: string | null;
+  labelNames: string;
+  labelNameList: string[];
+  script: number;
+  scriptName: string | null;
+  scriptType: number;
+  sortNumber: number | null;
+  heatScore: number;
+  scoreShow: string | null;
+  e_bm25_score: string;
+  starMessage: string | null;
+  actorList: string[] | null;
+  formatHeatScore: string;
+}
+
+// Search API Response
+export interface SearchResponse {
+  language: string;
+  searchCode: string[];
+  shadedWordSearchResult: SearchResultItem[];
+  searchCodeSearchResult: SearchResultItem[];
+  noResult: string[];
+  total: number;
+  abValue: number;
+  isNewLabel: boolean;
+  e_request_sequence_id: string;
+  abtestHitNewBO: string | null;
+}
+
 // API Response - array of theater sections
 export type TheatersResponse = TheaterSection[];
 
@@ -128,5 +166,19 @@ export function transformSectionToSectionData(
     items: section.contentInfos.map(transformDramaToMovie),
     layout,
     showViewAll: section.contentInfos.length > 5,
+  };
+}
+
+// Transform search result to Movie format
+export function transformSearchResultToMovie(result: SearchResultItem): Movie {
+  // Remove <em> tags from title (used for highlighting)
+  const cleanTitle = result.shortPlayName.replace(/<\/?em>/g, '');
+
+  return {
+    id: result.shortPlayId,
+    title: cleanTitle,
+    tags: result.labelNameList.slice(0, 2).join(' | ') || 'Drama',
+    imageUrl: result.shortPlayCover,
+    heatScore: result.formatHeatScore,
   };
 }

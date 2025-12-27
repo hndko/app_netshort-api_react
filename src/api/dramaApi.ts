@@ -1,5 +1,5 @@
 // API Service for fetching drama data from NetShort
-import { TheatersResponse, TheaterSection, DramaItem, ForYouResponse } from '@/src/types';
+import { TheatersResponse, TheaterSection, DramaItem, ForYouResponse, SearchResponse } from '@/src/types';
 
 // Base URL for NetShort API
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://netshort.sansekai.my.id/api/netshort';
@@ -27,7 +27,6 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
 export const dramaApi = {
   /**
    * Get all theater sections with dramas
-   * Returns array of sections like "Drama Viral", "Drama Premium", "Dubbing", etc.
    */
   getTheaters: (): Promise<TheatersResponse> => fetchApi('/theaters'),
 
@@ -39,8 +38,14 @@ export const dramaApi = {
     fetchApi(`/foryou?page=${page}`),
 
   /**
+   * Search dramas by query
+   * @param query - Search query
+   */
+  search: (query: string): Promise<SearchResponse> =>
+    fetchApi(`/search?query=${encodeURIComponent(query)}`),
+
+  /**
    * Get a specific section by content remark
-   * @param contentRemark - e.g., 'premium_drama', 'dubbed', 'coming_soon', 'rankings'
    */
   getSectionByRemark: async (contentRemark: string): Promise<TheaterSection | undefined> => {
     const theaters = await fetchApi<TheatersResponse>('/theaters');
@@ -48,47 +53,20 @@ export const dramaApi = {
   },
 
   /**
-   * Get featured/hero drama (first item from first section with high heat score)
+   * Get featured/hero drama
    */
   getHeroDrama: async (): Promise<DramaItem | undefined> => {
     const theaters = await fetchApi<TheatersResponse>('/theaters');
-    // Get the first section (usually "Drama Viral")
     const firstSection = theaters[0];
     if (firstSection && firstSection.contentInfos.length > 0) {
-      // Return the drama with highest heat score
       return firstSection.contentInfos.reduce((max, item) =>
         item.heatScore > max.heatScore ? item : max
       );
     }
     return undefined;
   },
-
-  /**
-   * Search dramas by name across all sections
-   * @param query - Search query
-   */
-  searchDramas: async (query: string): Promise<DramaItem[]> => {
-    const theaters = await fetchApi<TheatersResponse>('/theaters');
-    const allDramas: DramaItem[] = [];
-    const searchLower = query.toLowerCase();
-
-    theaters.forEach(section => {
-      section.contentInfos.forEach(drama => {
-        if (
-          drama.shortPlayName.toLowerCase().includes(searchLower) ||
-          drama.labelArray.some(label => label.toLowerCase().includes(searchLower))
-        ) {
-          // Avoid duplicates
-          if (!allDramas.find(d => d.shortPlayId === drama.shortPlayId)) {
-            allDramas.push(drama);
-          }
-        }
-      });
-    });
-
-    return allDramas;
-  },
 };
 
 export default dramaApi;
+
 
