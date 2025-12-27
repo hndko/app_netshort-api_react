@@ -1,4 +1,4 @@
-import { SectionData } from './types';
+import { SectionData } from '@/src/types';
 
 export const HERO_DATA = {
   title: "Tiga Raja",

@@ -1,5 +1,5 @@
 import React from 'react';
-import { SectionData } from '../types';
+import { SectionData } from '@/src/types';
 import MovieCard from './MovieCard';
 import Icon from './Icon';
 
@@ -10,7 +10,7 @@ const Section: React.FC<SectionData> = ({ title, items, layout, showViewAll }) =
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
         {showViewAll && (
           <a href="#" className="text-sm font-medium text-primary hover:text-rose-400 flex items-center group">
-            Lihat Semua 
+            Lihat Semua
             <Icon name="chevron_right" size="sm" className="ml-1 group-hover:translate-x-1 transition-transform" />
           </a>
         )}

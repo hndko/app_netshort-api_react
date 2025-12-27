@@ -1,5 +1,5 @@
 import React from 'react';
-import { HERO_DATA } from '../constants';
+import { HERO_DATA } from '@/src/constants';
 import Icon from './Icon';
 
 const Hero: React.FC = () => {

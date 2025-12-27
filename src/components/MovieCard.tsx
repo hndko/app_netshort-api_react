@@ -1,5 +1,5 @@
 import React from 'react';
-import { Movie } from '../types';
+import { Movie } from '@/src/types';
 import Icon from './Icon';
 
 interface MovieCardProps {
@@ -24,7 +24,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, className = '' }) => {
           loading="lazy"
           className="w-full h-full object-cover transform group-hover/card:scale-110 transition-transform duration-500"
         />
-        
+
         {/* Hover Overlay */}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center">
           <Icon name="play_circle" className="text-white drop-shadow-lg" size="5xl" />
@@ -34,7 +34,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, className = '' }) => {
         {movie.badge && (
           <div className={`absolute top-0 left-0 px-2 py-1 z-10 rounded-br-lg shadow-md ${movie.badgeColor ? badgeColors[movie.badgeColor] : 'bg-primary'}`}>
             <span className="text-white text-[10px] font-bold flex items-center gap-1 uppercase">
-              {movie.badge === 'TOP' && <Icon name="star" size="[12px]" />} 
+              {movie.badge === 'TOP' && <Icon name="star" size="[12px]" />}
               {movie.badge}
             </span>
           </div>

@@ -1,9 +1,9 @@
 import React from 'react';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Section from './components/Section';
-import Footer from './components/Footer';
-import { SECTIONS } from './constants';
+import Navbar from '@/src/components/Navbar';
+import Hero from '@/src/components/Hero';
+import Section from '@/src/components/Section';
+import Footer from '@/src/components/Footer';
+import { SECTIONS } from '@/src/constants';
 
 const App: React.FC = () => {
   return (
