@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import MovieCard from '@/src/components/MovieCard';
 import { dramaApi } from '@/src/api/dramaApi';
-import { Movie, transformSearchResultToMovie, SearchResultItem } from '@/src/types';
+import { Movie, transformSearchResultToMovie } from '@/src/types';
 
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -14,62 +14,58 @@ const SearchPage: React.FC = () => {
   const [error, setError] = useState<Error | null>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [allSearchResults, setAllSearchResults] = useState<SearchResultItem[]>([]);
+  const [hasMore, setHasMore] = useState(true);
 
-  const ITEMS_PER_PAGE = 20;
-
-  // Fetch initial search results
-  const fetchResults = useCallback(async () => {
+  // Fetch search results
+  const fetchResults = useCallback(async (pageNum: number, append: boolean = false) => {
     if (!query.trim()) {
       setResults([]);
       setTotal(0);
-      setAllSearchResults([]);
+      setHasMore(false);
       return;
     }
 
-    setLoading(true);
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+      setResults([]);
+    }
     setError(null);
-    setPage(1);
 
     try {
-      const response = await dramaApi.search(query);
-      const allItems = response.searchCodeSearchResult;
-      setAllSearchResults(allItems);
-      setTotal(response.total);
+      const response = await dramaApi.search(query, pageNum);
+      const newMovies = response.searchCodeSearchResult.map(transformSearchResultToMovie);
 
-      // Show first page
-      const firstPageItems = allItems.slice(0, ITEMS_PER_PAGE);
-      const movies = firstPageItems.map(transformSearchResultToMovie);
-      setResults(movies);
+      if (append) {
+        setResults(prev => [...prev, ...newMovies]);
+      } else {
+        setResults(newMovies);
+        setTotal(response.total);
+      }
+
+      // Check if there are more results
+      setHasMore(newMovies.length > 0);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Gagal mencari drama'));
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [query]);
 
+  // Initial fetch when query changes
   useEffect(() => {
-    fetchResults();
-  }, [fetchResults]);
+    setPage(1);
+    fetchResults(1, false);
+  }, [query]);
 
-  // Load more results (from already fetched data)
+  // Load more results
   const loadMore = () => {
-    setLoadingMore(true);
-
     const nextPage = page + 1;
-    const startIndex = 0;
-    const endIndex = nextPage * ITEMS_PER_PAGE;
-
-    const moreItems = allSearchResults.slice(startIndex, endIndex);
-    const movies = moreItems.map(transformSearchResultToMovie);
-
-    setResults(movies);
     setPage(nextPage);
-    setLoadingMore(false);
+    fetchResults(nextPage, true);
   };
-
-  const hasMore = results.length < allSearchResults.length;
-  const showingCount = results.length;
 
   return (
     <main className="relative z-10 pt-20 pb-20 bg-background-light dark:bg-background-dark transition-colors duration-300 min-h-screen">
@@ -81,7 +77,7 @@ const SearchPage: React.FC = () => {
           </h1>
           {query && (
             <p className="text-gray-600 dark:text-gray-400">
-              {loading ? 'Mencari...' : `Menampilkan ${showingCount} dari ${total} hasil untuk "${query}"`}
+              {loading ? 'Mencari...' : `Menampilkan ${results.length} dari ${total} hasil untuk "${query}"`}
             </p>
           )}
         </div>
@@ -125,14 +121,14 @@ const SearchPage: React.FC = () => {
         {/* Results Grid */}
         {!loading && results.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {results.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} />
+            {results.map((movie, index) => (
+              <MovieCard key={`${movie.id}-${index}`} movie={movie} />
             ))}
           </div>
         )}
 
         {/* Load More Button */}
-        {!loading && hasMore && (
+        {!loading && hasMore && results.length > 0 && results.length < total && (
           <div className="flex justify-center mt-12">
             <button
               onClick={loadMore}
@@ -145,14 +141,14 @@ const SearchPage: React.FC = () => {
                   Memuat...
                 </>
               ) : (
-                `Muat Lebih Banyak (${allSearchResults.length - results.length} tersisa)`
+                'Muat Lebih Banyak'
               )}
             </button>
           </div>
         )}
 
         {/* End of Results */}
-        {!loading && !hasMore && results.length > 0 && (
+        {!loading && results.length > 0 && results.length >= total && (
           <div className="text-center mt-12 text-gray-500 dark:text-gray-400">
             Sudah menampilkan semua hasil pencarian
           </div>

@@ -40,9 +40,10 @@ export const dramaApi = {
   /**
    * Search dramas by query
    * @param query - Search query
+   * @param page - Page number (default: 1)
    */
-  search: (query: string): Promise<SearchResponse> =>
-    fetchApi(`/search?query=${encodeURIComponent(query)}`),
+  search: (query: string, page: number = 1): Promise<SearchResponse> =>
+    fetchApi(`/search?query=${encodeURIComponent(query)}&page=${page}`),
 
   /**
    * Get a specific section by content remark
