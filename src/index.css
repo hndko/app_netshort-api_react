@@ -1,6 +1,16 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Custom theme configuration */
+@theme {
+  --color-primary: #ff2e63;
+  --color-background-light: #f9fafb;
+  --color-background-dark: #141414;
+  --color-card-dark: #1e1e1e;
+  --color-card-light: #ffffff;
+
+  --font-family-display: "Inter", sans-serif;
+  --font-family-sans: "Inter", sans-serif;
+}
 
 /* Custom scrollbar styles */
 .no-scrollbar::-webkit-scrollbar {
