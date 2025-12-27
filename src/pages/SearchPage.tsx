@@ -10,62 +10,32 @@ const SearchPage: React.FC = () => {
 
   const [results, setResults] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
 
   // Fetch search results
-  const fetchResults = useCallback(async (pageNum: number, append: boolean = false) => {
+  const fetchResults = useCallback(async () => {
     if (!query.trim()) {
       setResults([]);
-      setTotal(0);
-      setHasMore(false);
       return;
     }
 
-    if (append) {
-      setLoadingMore(true);
-    } else {
-      setLoading(true);
-      setResults([]);
-    }
+    setLoading(true);
     setError(null);
 
     try {
-      const response = await dramaApi.search(query, pageNum);
-      const newMovies = response.searchCodeSearchResult.map(transformSearchResultToMovie);
-
-      if (append) {
-        setResults(prev => [...prev, ...newMovies]);
-      } else {
-        setResults(newMovies);
-        setTotal(response.total);
-      }
-
-      // Check if there are more results
-      setHasMore(newMovies.length > 0);
+      const response = await dramaApi.search(query);
+      const movies = response.searchCodeSearchResult.map(transformSearchResultToMovie);
+      setResults(movies);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Gagal mencari drama'));
     } finally {
       setLoading(false);
-      setLoadingMore(false);
     }
   }, [query]);
 
-  // Initial fetch when query changes
   useEffect(() => {
-    setPage(1);
-    fetchResults(1, false);
-  }, [query]);
-
-  // Load more results
-  const loadMore = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchResults(nextPage, true);
-  };
+    fetchResults();
+  }, [fetchResults]);
 
   return (
     <main className="relative z-10 pt-20 pb-20 bg-background-light dark:bg-background-dark transition-colors duration-300 min-h-screen">
@@ -77,7 +47,7 @@ const SearchPage: React.FC = () => {
           </h1>
           {query && (
             <p className="text-gray-600 dark:text-gray-400">
-              {loading ? 'Mencari...' : `Menampilkan ${results.length} dari ${total} hasil untuk "${query}"`}
+              {loading ? 'Mencari...' : `Menampilkan ${results.length} hasil untuk "${query}"`}
             </p>
           )}
         </div>
@@ -124,33 +94,6 @@ const SearchPage: React.FC = () => {
             {results.map((movie, index) => (
               <MovieCard key={`${movie.id}-${index}`} movie={movie} />
             ))}
-          </div>
-        )}
-
-        {/* Load More Button */}
-        {!loading && hasMore && results.length > 0 && results.length < total && (
-          <div className="flex justify-center mt-12">
-            <button
-              onClick={loadMore}
-              disabled={loadingMore}
-              className="bg-primary hover:bg-rose-600 disabled:bg-gray-400 text-white px-8 py-3 rounded-full font-semibold flex items-center gap-2 transition-colors shadow-lg shadow-primary/30"
-            >
-              {loadingMore ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-                  Memuat...
-                </>
-              ) : (
-                'Muat Lebih Banyak'
-              )}
-            </button>
-          </div>
-        )}
-
-        {/* End of Results */}
-        {!loading && results.length > 0 && results.length >= total && (
-          <div className="text-center mt-12 text-gray-500 dark:text-gray-400">
-            Sudah menampilkan semua hasil pencarian
           </div>
         )}
       </div>
